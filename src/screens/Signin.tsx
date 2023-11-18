@@ -7,6 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 import { AuthRoutesNavigatorProps } from "../routes/auth.routes";
 import { useState } from "react";
 import { useSignIn } from "@clerk/clerk-expo";
+import { Loading } from "../components/Loading";
 
 export function Signin () {
   const { navigate } = useNavigation<AuthRoutesNavigatorProps>()
@@ -14,6 +15,8 @@ export function Signin () {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+
+  const [isLoading, setIsLoading] = useState(false)
 
   function cleanFields () {
     setEmail('')
@@ -25,6 +28,7 @@ export function Signin () {
   }
 
   async function handleSignin () { 
+    setIsLoading(true)
     if (!isLoaded) {
       return;
     }
@@ -39,6 +43,8 @@ export function Signin () {
     } catch (err: any) {
       console.log(err);
       cleanFields()
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -78,8 +84,9 @@ export function Signin () {
           />
 
           <Button
-            title="Entrar"
+            title={isLoading ? <Loading /> : "Entrar"}
             onPress={handleSignin}
+            disabled={!(email && password) || isLoading}
           />
         </Center>
 

@@ -1,17 +1,25 @@
 import { Avatar, Center, Heading, Link, Text, VStack } from "native-base";
 import { Input } from "../components/Input";
-import { useUser } from "@clerk/clerk-expo";
+import { useClerk, useUser } from "@clerk/clerk-expo";
 import { useState } from "react";
 import { Button } from "../components/Button";
+import { Loading } from "../components/Loading";
 
 export function Profile () {
   const { user, isLoaded, isSignedIn } = useUser()
+  const { signOut } = useClerk();
 
   const [name, setName] = useState(user?.fullName || '')
   const [email, setEmail] = useState(user?.primaryEmailAddress?.emailAddress || '')
 
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
+
+  const [isLoading, setIsLoading] = useState(false)
+
+  async function handleLogout () {
+    await signOut()
+  }
 
   return (
     <VStack px={10}>
@@ -20,7 +28,7 @@ export function Profile () {
           source={{
             uri: user?.imageUrl
           }}
-          mt={24}
+          mt={16}
           size={"2xl"}
         />
         <Link>
@@ -28,7 +36,7 @@ export function Profile () {
         </Link>
       </Center>
 
-      <Center mt={16}>
+      <Center mt={8}>
         <Input 
           placeholder="Nome"
           value={name}
@@ -41,7 +49,7 @@ export function Profile () {
         />
       </Center>
 
-      <Center mt={8}>
+      <Center mt={4}>
         <Text
           color="gray.100"
           fontFamily="body"
@@ -63,7 +71,15 @@ export function Profile () {
         />
       </Center>
 
-      <Button title="Atualizar" />
+      <Button 
+        mt={4} 
+        title={isLoading ? <Loading /> : "Atualizar"} 
+      />
+      <Button 
+        variant={"outline"} 
+        title={isLoading ? <Loading /> : "Sair"} 
+        onPress={handleLogout} 
+      />
     </VStack>
   )
 }

@@ -1,4 +1,4 @@
-import { VStack } from "native-base";
+import { Image, VStack } from "native-base";
 import { Activity } from "../components/Activity";
 
 import serviceImage from '../assets/service.jpg'
@@ -8,7 +8,7 @@ import eventImage from '../assets/event.jpg'
 
 export function Home () {
   return (
-    <VStack px={8} py={16}>
+    <VStack px={8} py={16} mt={8}>
       <Activity 
         title="Cultos"
         subtitle="Fique por dentro dos nossos cultos"

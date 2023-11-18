@@ -1,7 +1,7 @@
 import { IButtonProps, Button as NativeBaseButton, Text } from 'native-base'
 
 type ButtonProps = IButtonProps & {
-  title: string
+  title: string | JSX.Element
   variant?: 'solid' | 'outline'
 }
 
@@ -10,6 +10,7 @@ export function Button ({ title, variant = 'solid', ...rest }: ButtonProps) {
     <NativeBaseButton 
       w="full"
       h={16}
+      mb={2}
       bg={variant === 'outline' ? "transparent" : "blue.700"}
       borderWidth={variant === 'outline' ? 1 : 0}
       borderColor="blue.500"

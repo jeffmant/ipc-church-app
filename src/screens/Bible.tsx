@@ -1,4 +1,4 @@
-import { Center, HStack, ScrollView, Text, VStack } from "native-base";
+import { Center, FlatList, HStack, Heading, ScrollView, Text, VStack } from "native-base";
 import { Alert } from "react-native";
 import { useEffect, useState } from "react";
 import { Select } from "../components/Select";
@@ -87,24 +87,29 @@ export function Bible () {
           </HStack>
         </Center>
 
-        {
-          !isLoading && verses?.length > 0 ? verses.map((verse: Verse) => (
+        <FlatList 
+          data={verses}
+          renderItem={({ item }) => (
             <Text 
               mt={2}
               mb={2}
               fontFamily="body" 
               fontSize={"lg"} 
               color="gray.100" 
-              key={verse.number}
+              key={item.number}
             >  
-              {verse.number}. {verse.text}
-            </Text>
-          )) : (
+            {item.number}. {item.text}
+          </Text>
+          )}
+          ListEmptyComponent={() => (
             <Center flex={1}>
-              <Loading />
+              <Heading color="gray.100">
+                Ops! Não encontramos.
+              </Heading>
             </Center>
-          )
-        }
+          )}
+          showsVerticalScrollIndicator={false}
+        />
 
       </VStack>
     </ScrollView>

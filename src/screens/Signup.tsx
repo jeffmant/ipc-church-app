@@ -7,6 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 import { AuthRoutesNavigatorProps } from "../routes/auth.routes";
 import { useState } from "react";
 import { useSignUp } from "@clerk/clerk-expo";
+import { Loading } from "../components/Loading";
 
 export function Signup () {
   const { navigate } = useNavigation<AuthRoutesNavigatorProps>()
@@ -18,6 +19,8 @@ export function Signup () {
   
   const [pendingVerification, setPendingVerification] = useState(false)
   const [code, setCode] = useState('')
+
+  const [isLoading, setIsLoading] = useState(false)
 
   function cleanFields () {
     setName('')
@@ -32,6 +35,7 @@ export function Signup () {
   }
 
   async function handleSignup () {
+    setIsLoading(true)
     if (!isLoaded) {
       return;
     }
@@ -49,10 +53,13 @@ export function Signup () {
       setPendingVerification(true);
     } catch (err: any) {
         console.error(JSON.stringify(err, null, 2));
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const onPressVerify = async () => {
+    setIsLoading(true)
     if (!isLoaded) {
       return;
     }
@@ -68,6 +75,8 @@ export function Signup () {
       console.error(JSON.stringify(err, null, 2));
       cleanFields()
       navigate('signup')
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -116,9 +125,9 @@ export function Signup () {
                 />
       
                 <Button
-                  title="Cadastrar"
+                  title={isLoading ? <Loading /> : "Cadastrar"}
                   onPress={handleSignup}
-                  disabled={!(name && email && password)}
+                  disabled={!(name && email && password) || isLoading}
                 />
               </>
             ) : (
@@ -130,7 +139,7 @@ export function Signup () {
                 />
 
                 <Button
-                  title="Confirmar"
+                  title={ isLoading ? <Loading /> : "Confirmar" }
                   onPress={onPressVerify}
                 />
               </>
