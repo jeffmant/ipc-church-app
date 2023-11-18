@@ -7,11 +7,9 @@ import { useNavigation } from "@react-navigation/native";
 import { AuthRoutesNavigatorProps } from "../routes/auth.routes";
 import { useState } from "react";
 import { useSignIn } from "@clerk/clerk-expo";
-import { AppRoutesNavigatorProps } from "../routes/app.routes";
 
 export function Signin () {
-  const { navigate: authNavigate } = useNavigation<AuthRoutesNavigatorProps>()
-  const { navigate: appNavigate } = useNavigation<AppRoutesNavigatorProps>()
+  const { navigate } = useNavigation<AuthRoutesNavigatorProps>()
   const { signIn, setActive, isLoaded } = useSignIn();
 
   const [email, setEmail] = useState('')
@@ -23,7 +21,7 @@ export function Signin () {
   }
 
   function gotToRegisterScreen () {
-    authNavigate('signup')
+    navigate('signup')
   }
 
   async function handleSignin () { 
@@ -38,7 +36,6 @@ export function Signin () {
       });
       await setActive({ session: completeSignIn.createdSessionId });
       cleanFields()
-      appNavigate('home')
     } catch (err: any) {
       console.log(err);
       cleanFields()

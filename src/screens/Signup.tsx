@@ -7,11 +7,9 @@ import { useNavigation } from "@react-navigation/native";
 import { AuthRoutesNavigatorProps } from "../routes/auth.routes";
 import { useState } from "react";
 import { useSignUp } from "@clerk/clerk-expo";
-import { AppRoutesNavigatorProps } from "../routes/app.routes";
 
 export function Signup () {
-  const { navigate: authNavigate } = useNavigation<AuthRoutesNavigatorProps>()
-  const { navigate: appNavigate } = useNavigation<AppRoutesNavigatorProps>()
+  const { navigate } = useNavigation<AuthRoutesNavigatorProps>()
   const { isLoaded, signUp, setActive } = useSignUp();
 
   const [name, setName] = useState('')
@@ -30,7 +28,7 @@ export function Signup () {
   }
 
   function gotToLoginScreen () {
-    authNavigate('signin')
+    navigate('signin')
   }
 
   async function handleSignup () {
@@ -66,11 +64,10 @@ export function Signup () {
  
       await setActive({ session: completeSignUp.createdSessionId });
       cleanFields()
-      appNavigate('home')
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2));
       cleanFields()
-      authNavigate('signup')
+      navigate('signup')
     }
   };
 

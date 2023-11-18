@@ -1,24 +1,48 @@
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { AuthRoutes } from "./auth.routes";
 import { Box, useTheme } from "native-base";
-import { SignedIn, SignedOut } from "@clerk/clerk-expo";
+import { ClerkProvider, SignedIn, SignedOut } from "@clerk/clerk-expo";
 import { AppRoutes } from "./app.routes";
+import Constants from "expo-constants"
+import * as SecureStore from "expo-secure-store";
 
 export function Routes () {
   const { colors } = useTheme()
   const theme = DefaultTheme;
   theme.colors.background= colors.gray['700']
 
+  const tokenCache = {
+    async getToken(key: string) {
+      try {
+        return SecureStore.getItemAsync(key);
+      } catch (err) {
+        return null;
+      }
+    },
+    async saveToken(key: string, value: string) {
+      try {
+        return SecureStore.setItemAsync(key, value);
+      } catch (err) {
+        return;
+      }
+    },
+  };
+
   return (
-    <Box flex={1} bg="gray.700">
-      <NavigationContainer>
-        <SignedIn>
-          <AuthRoutes />
-        </SignedIn>
-        <SignedOut>
-          <AppRoutes />
-        </SignedOut>
-      </NavigationContainer>
-    </Box>
+    <ClerkProvider
+      publishableKey={Constants.expoConfig?.extra?.clerkPublishableKey}
+      tokenCache={tokenCache}
+    >
+      <Box flex={1} bg="gray.700">
+        <NavigationContainer>
+          <SignedIn>
+            <AppRoutes />
+          </SignedIn>
+          <SignedOut>
+            <AuthRoutes />
+          </SignedOut>
+        </NavigationContainer>
+      </Box>
+    </ClerkProvider>
   )
 }

@@ -20,14 +20,9 @@ export default function App() {
         backgroundColor='transparent'
         translucent
       />
-      
-      <ClerkProvider 
-        publishableKey={Constants.expoConfig?.extra?.clerkPublishableKey}
-      >
 
       { fontsLoaded ? <Routes /> : <Loading /> }
-
-      </ClerkProvider>
+      
     </NativeBaseProvider>
   );
 }
