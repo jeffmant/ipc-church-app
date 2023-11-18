@@ -3,8 +3,16 @@ import { Center, Image, ScrollView, Text, VStack } from "native-base";
 import LogoImg from '../assets/logo.png'
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
+import { useNavigation } from "@react-navigation/native";
+import { AuthRoutesNavigatorProps } from "../routes/auth.routes";
 
 export function Signup () {
+  const { navigate } = useNavigation<AuthRoutesNavigatorProps>()
+
+  function gotToLoginScreen () {
+    navigate('signin')
+  }
+
   return (
     <ScrollView 
       contentContainerStyle={{ 
@@ -49,6 +57,7 @@ export function Signup () {
           <Button 
             title="Voltar para login"
             variant="outline"
+            onPress={gotToLoginScreen}
           />
           </Center>
 
