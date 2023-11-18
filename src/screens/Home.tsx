@@ -11,7 +11,7 @@ export function Home () {
     <VStack px={8} py={16} mt={8}>
       <Activity 
         title="Cultos"
-        subtitle="Fique por dentro dos nossos cultos"
+        subtitle="Você sabe os horários dos nossos cultos?"
         image={serviceImage}
       />
       
@@ -29,7 +29,7 @@ export function Home () {
 
       <Activity 
         title="Eventos"
-        subtitle="Conheça os ministérios da IPC"
+        subtitle="Fique por dentro da nossa programação"
         image={eventImage}
       />
     </VStack>
