@@ -3,7 +3,7 @@ import {
   BottomTabNavigationProp 
 } from '@react-navigation/bottom-tabs'
 import { Home } from '../screens/Home'
-import { Daily } from '../screens/Daily'
+import { Bible } from '../screens/Bible'
 import { Profile } from '../screens/Profile'
 import { useTheme } from 'native-base'
 import { Platform } from 'react-native'
@@ -12,7 +12,7 @@ import { House, HandsPraying, User } from 'phosphor-react-native';
 
 type AppRoutesProps = {
   home: undefined
-  daily: undefined
+  bible: undefined
   profile: undefined
 }
 
@@ -54,8 +54,8 @@ export function AppRoutes () {
       />
 
       <Screen 
-        name='daily'
-        component={Daily}
+        name='bible'
+        component={Bible}
         options={{
           tabBarIcon: ({ color }) => (
             <HandsPraying 
