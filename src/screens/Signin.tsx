@@ -5,12 +5,44 @@ import { Input } from "../components/Input";
 import { Button } from "../components/Button";
 import { useNavigation } from "@react-navigation/native";
 import { AuthRoutesNavigatorProps } from "../routes/auth.routes";
+import { useState } from "react";
+import { useSignIn } from "@clerk/clerk-expo";
+import { AppRoutesNavigatorProps } from "../routes/app.routes";
 
 export function Signin () {
-  const { navigate } = useNavigation<AuthRoutesNavigatorProps>()
+  const { navigate: authNavigate } = useNavigation<AuthRoutesNavigatorProps>()
+  const { navigate: appNavigate } = useNavigation<AppRoutesNavigatorProps>()
+  const { signIn, setActive, isLoaded } = useSignIn();
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  function cleanFields () {
+    setEmail('')
+    setPassword('')
+  }
 
   function gotToRegisterScreen () {
-    navigate('signup')
+    authNavigate('signup')
+  }
+
+  async function handleSignin () { 
+    if (!isLoaded) {
+      return;
+    }
+
+    try {
+      const completeSignIn = await signIn.create({
+        identifier: email,
+        password,
+      });
+      await setActive({ session: completeSignIn.createdSessionId });
+      cleanFields()
+      appNavigate('home')
+    } catch (err: any) {
+      console.log(err);
+      cleanFields()
+    }
   }
 
   return (
@@ -37,15 +69,20 @@ export function Signin () {
             placeholder="Email"
             keyboardType="email-address"
             autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
           />
 
           <Input 
             placeholder="Senha"
             secureTextEntry
+            value={password}
+            onChangeText={setPassword}
           />
 
           <Button
             title="Entrar"
+            onPress={handleSignin}
           />
         </Center>
 
