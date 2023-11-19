@@ -1,4 +1,4 @@
-import { Center, Image, ScrollView, VStack } from "native-base";
+import { Center, Image, ScrollView, Text, VStack } from "native-base";
 
 import LogoImg from '../assets/logo.png'
 import { Input } from "../components/Input";
@@ -8,6 +8,7 @@ import { AuthRoutesNavigatorProps } from "../routes/auth.routes";
 import { useState } from "react";
 import { useSignUp } from "@clerk/clerk-expo";
 import { Loading } from "../components/Loading";
+import { Alert } from "react-native";
 
 export function Signup () {
   const { navigate } = useNavigation<AuthRoutesNavigatorProps>()
@@ -52,7 +53,7 @@ export function Signup () {
 
       setPendingVerification(true);
     } catch (err: any) {
-        console.error(JSON.stringify(err, null, 2));
+        Alert.alert(err.message || "Algo deu errado. Tente novamente!")
     } finally {
       setIsLoading(false)
     }
@@ -68,14 +69,17 @@ export function Signup () {
       const completeSignUp = await signUp.attemptEmailAddressVerification({
         code,
       });
+
+      if (!completeSignUp.createdSessionId) {
+        throw new Error("Código inválido")
+      }
  
       await setActive({ session: completeSignUp.createdSessionId });
-      cleanFields()
     } catch (err: any) {
-      console.error(JSON.stringify(err, null, 2));
-      cleanFields()
+      Alert.alert(err.message || "Algo deu errado. Tente novamente!")
       navigate('signup')
     } finally {
+      cleanFields()
       setIsLoading(false)
     }
   };
@@ -107,6 +111,7 @@ export function Signup () {
                   placeholder="Seu nome"
                   value={name}
                   onChangeText={setName}
+                  autoCapitalize="words"
                 />
     
                 <Input 
@@ -132,10 +137,21 @@ export function Signup () {
               </>
             ) : (
               <>
+              <Text
+                color="gray.100"
+                fontFamily="body"
+                mb={4}
+                fontSize="md"
+              >
+                Enviamos um código no seu email. {"\n"}
+                Por gentileza, insira-o aqui:
+              </Text>
+
                 <Input 
-                placeholder="Código"
-                keyboardType="numeric"
-                onChangeText={setCode}
+                  placeholder="Código"
+                  keyboardType="numeric"
+                  value={code}
+                  onChangeText={setCode}
                 />
 
                 <Button

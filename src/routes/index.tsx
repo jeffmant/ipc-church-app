@@ -5,6 +5,7 @@ import { ClerkProvider, SignedIn, SignedOut } from "@clerk/clerk-expo";
 import { AppRoutes } from "./app.routes";
 import Constants from "expo-constants"
 import * as SecureStore from "expo-secure-store";
+import { ptBR } from "@clerk/localizations";
 
 export function Routes () {
   const { colors } = useTheme()
@@ -32,6 +33,7 @@ export function Routes () {
     <ClerkProvider
       publishableKey={Constants.expoConfig?.extra?.clerkPublishableKey}
       tokenCache={tokenCache}
+      localization={ptBR}
     >
       <Box flex={1} bg="gray.700">
         <NavigationContainer>
