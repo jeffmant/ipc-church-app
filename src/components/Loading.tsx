@@ -1,9 +1,12 @@
-import { Center, Spinner } from "native-base";
+import { Center, ISpinnerProps, Spinner } from "native-base";
 
-export function Loading () {
+export function Loading ({ ...rest }: ISpinnerProps) {
   return (
     <Center flex={1}>
-      <Spinner color="gray.500" />
+      <Spinner 
+        color="gray.500"
+        {...rest} 
+      />
     </Center>
   )
 }

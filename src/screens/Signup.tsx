@@ -42,7 +42,7 @@ export function Signup () {
     }
 
     try {
-      const completeSignUp = await signUp.create({
+      await signUp.create({
         firstName: name.split(' ')[0],
         lastName: name.split(' ')[1] || '',
         emailAddress: email,
