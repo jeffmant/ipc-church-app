@@ -1,33 +1,36 @@
-import { Center, Image, ScrollView, Text, VStack } from "native-base";
-
-import LogoImg from '../assets/logo.png'
-import { Input } from "../components/Input";
-import { Button } from "../components/Button";
+import { isClerkAPIResponseError, useSignIn } from "@clerk/clerk-expo";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigation } from "@react-navigation/native";
-import { AuthRoutesNavigatorProps } from "../routes/auth.routes";
 import { useState } from "react";
-import { useSignIn } from "@clerk/clerk-expo";
-import { Loading } from "../components/Loading";
+
+import { Center, Image, ScrollView, Text, VStack, useToast } from "native-base";
+import { Controller, FieldError, useForm } from "react-hook-form";
+import { Button } from "../components/Button";
+import { Input } from "../components/Input";
+
+import LogoImg from '../assets/logo.png';
+
+import { SigninDTO } from "../dtos/signin.dto";
+import { AuthRoutesNavigatorProps } from "../routes/auth.routes";
+import { signinValidationSchema } from "../utils/validations/singin.schema";
 
 export function Signin () {
   const { navigate } = useNavigation<AuthRoutesNavigatorProps>()
   const { signIn, setActive, isLoaded } = useSignIn();
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const toast = useToast()
+
+  const { control, handleSubmit, setError, formState: { errors } } = useForm<SigninDTO>({
+    resolver: yupResolver(signinValidationSchema)
+  })
 
   const [isLoading, setIsLoading] = useState(false)
-
-  function cleanFields () {
-    setEmail('')
-    setPassword('')
-  }
 
   function gotToRegisterScreen () {
     navigate('signup')
   }
 
-  async function handleSignin () { 
+  async function handleSignin ({ email, password }: SigninDTO) { 
     setIsLoading(true)
     if (!isLoaded) {
       return;
@@ -39,10 +42,25 @@ export function Signin () {
         password,
       });
       await setActive({ session: completeSignIn.createdSessionId });
-      cleanFields()
-    } catch (err: any) {
-      console.log(err);
-      cleanFields()
+    } catch (error: any) {
+      if (isClerkAPIResponseError(error)) {
+        for (const err of error.errors) {
+          if (err.meta?.paramName) {
+            setError((
+              err.meta.paramName === 'email_address' ? 
+              "email" : 
+              err.meta.paramName
+            ) as keyof SigninDTO, { 
+              message: err.message 
+            } as FieldError)
+          }
+        }
+      }
+      toast.show({
+        description: error.message || "Algo deu errado. Tente novamente!",
+        placement: 'top',
+        bgColor: 'red.500'
+      })
     } finally {
       setIsLoading(false)
     }
@@ -68,25 +86,39 @@ export function Signin () {
         </Center>
 
         <Center>
-          <Input 
-            placeholder="Email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
+          <Controller 
+            control={control}
+            name="email"
+            render={({ field: { value, onChange } }) => (
+              <Input 
+                placeholder="Email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={value}
+                onChangeText={onChange}
+                errorMessage={errors?.email?.message}
+              />
+            )}
           />
 
-          <Input 
-            placeholder="Senha"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
+          <Controller 
+            control={control}
+            name="password"
+            render={({ field: { value, onChange } }) => (
+              <Input 
+                placeholder="Senha"
+                secureTextEntry
+                value={value}
+                onChangeText={onChange}
+                errorMessage={errors?.password?.message}
+              />
+            )}
           />
 
           <Button
-            title={isLoading ? <Loading /> : "Entrar"}
-            onPress={handleSignin}
-            disabled={!(email && password) || isLoading}
+            title="Entrar"
+            onPress={handleSubmit(handleSignin)}
+            isLoading={isLoading}
           />
         </Center>
 
