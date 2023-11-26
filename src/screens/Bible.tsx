@@ -1,11 +1,11 @@
-import { Center, FlatList, HStack, Heading, Text, VStack } from "native-base";
-import { Alert } from "react-native";
 import { useEffect, useState } from "react";
+
+import { Center, FlatList, HStack, Heading, Text, VStack, useToast } from "native-base";
+import { Loading } from "../components/Loading";
 import { Select } from "../components/Select";
-import { fetchVerses } from "../remote/get-verses";
 import { SelectItem } from "../components/SelectItem";
 import { BIBLE_BOOKS } from "../constants/bible";
-import { Loading } from "../components/Loading";
+import { fetchVerses } from "../remote/get-verses";
 
 type Book = {
   id: string 
@@ -24,6 +24,8 @@ export function Bible () {
   const [verses, setVerses] = useState<Verse[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
+  const toast = useToast()
+
   async function handleSelectBook (bookId: string) {
     const foundBook = BIBLE_BOOKS.find((book) => book.id === bookId)
     setSelectedBook(foundBook)
@@ -39,7 +41,11 @@ export function Bible () {
       const foundVerses = await fetchVerses(selectedBook?.id, chapter)
       setVerses(foundVerses?.verses)
     } catch (error) {
-      Alert.alert('Não foi possível carregar os versículos')
+      toast.show({
+        title: 'Não foi possível carregar os versículos.',
+        placement: 'top',
+        bgColor: 'red.500'
+      })
     } finally {
       setIsLoading(false)
     }
@@ -112,6 +118,7 @@ export function Bible () {
                 </Center>
               )}
               showsVerticalScrollIndicator={false}
+              _contentContainerStyle={{ paddingBottom: 64 }}
             />
           )
         }
