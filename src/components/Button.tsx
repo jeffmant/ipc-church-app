@@ -1,7 +1,7 @@
 import { IButtonProps, Button as NativeBaseButton, Text } from 'native-base'
 
 type ButtonProps = IButtonProps & {
-  title: string | JSX.Element
+  title: string
   variant?: 'solid' | 'outline'
 }
 

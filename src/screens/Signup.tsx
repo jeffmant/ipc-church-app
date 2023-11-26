@@ -1,41 +1,41 @@
-import { Center, Image, ScrollView, Text, VStack } from "native-base";
-
-import LogoImg from '../assets/logo.png'
-import { Input } from "../components/Input";
-import { Button } from "../components/Button";
+import { isClerkAPIResponseError, useSignUp } from "@clerk/clerk-expo";
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigation } from "@react-navigation/native";
-import { AuthRoutesNavigatorProps } from "../routes/auth.routes";
 import { useState } from "react";
-import { useSignUp } from "@clerk/clerk-expo";
-import { Loading } from "../components/Loading";
-import { Alert } from "react-native";
+
+import { Center, Image, ScrollView, Text, VStack, useToast } from "native-base";
+import { Controller, FieldError, useForm } from "react-hook-form";
+import { Button } from "../components/Button";
+import { Input } from "../components/Input";
+
+import LogoImg from '../assets/logo.png';
+
+import { SignupDTO } from "../dtos/signup.dto";
+
+import { AuthRoutesNavigatorProps } from "../routes/auth.routes";
+import { signupValidationSchema } from "../utils/validations/signup.schema";
 
 export function Signup () {
   const { navigate } = useNavigation<AuthRoutesNavigatorProps>()
   const { isLoaded, signUp, setActive } = useSignUp();
 
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  
+  const toast = useToast()
+
+  const { control, handleSubmit, reset, formState: { errors }, setError } = useForm<SignupDTO>({
+    defaultValues: {},
+    resolver: yupResolver(signupValidationSchema)
+  })
+
   const [pendingVerification, setPendingVerification] = useState(false)
   const [code, setCode] = useState('')
 
   const [isLoading, setIsLoading] = useState(false)
 
-  function cleanFields () {
-    setName('')
-    setEmail('')
-    setPassword('')
-    setCode('')
-    setPendingVerification(false)
-  }
-
   function gotToLoginScreen () {
     navigate('signin')
   }
 
-  async function handleSignup () {
+  async function handleSignup (data: SignupDTO) {
     setIsLoading(true)
     if (!isLoaded) {
       return;
@@ -43,18 +43,34 @@ export function Signup () {
 
     try {
       await signUp.create({
-        firstName: name.split(' ')[0],
-        lastName: name.split(' ')[1] || '',
-        emailAddress: email,
-        username: email.split('@')[0],
-        password,
+        firstName: data.name.split(' ')[0],
+        lastName: data.name.split(' ')[1] || '',
+        emailAddress: data.email,
+        password: data.password,
       });
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
 
       setPendingVerification(true);
-    } catch (err: any) {
-        Alert.alert(err.message || "Algo deu errado. Tente novamente!")
+    } catch (error: any) {
+      if (isClerkAPIResponseError(error)) {
+        for (const err of error.errors) {
+          if (err.meta?.paramName) {
+            setError((
+              err.meta.paramName === 'email_address' ? 
+              "email" : 
+              err.meta.paramName
+            ) as keyof SignupDTO, { 
+              message: err.message 
+            } as FieldError)
+          }
+        }
+      }
+      toast.show({
+        title: 'Algo deu errado. Tente novamente!',
+        placement: 'top',
+        bgColor: 'red.500'
+      })
     } finally {
       setIsLoading(false)
     }
@@ -67,20 +83,26 @@ export function Signup () {
     }
  
     try {
-      const completeSignUp = await signUp.attemptEmailAddressVerification({
+      const { createdSessionId } = await signUp.attemptEmailAddressVerification({
         code,
       });
 
-      if (!completeSignUp.createdSessionId) {
+      if (!createdSessionId) {
         throw new Error("Código inválido")
       }
- 
-      await setActive({ session: completeSignUp.createdSessionId });
-    } catch (err: any) {
-      Alert.alert(err.message || "Algo deu errado. Tente novamente!")
+      
+      await setActive({ session: createdSessionId });
+
+    } catch (error: any) {
+      toast.show({
+        title: 'Algo deu errado. Tente novamente!',
+        placement: 'top',
+        bgColor: 'red.500'
+      })
       navigate('signup')
     } finally {
-      cleanFields()
+      setCode('')
+      setPendingVerification(false)
       setIsLoading(false)
     }
   };
@@ -100,7 +122,7 @@ export function Signup () {
             alt="IPC logo"
             w={64}
             resizeMode="contain" 
-            mt={24}
+            mt={4}
           />
         </Center>
 
@@ -108,32 +130,67 @@ export function Signup () {
           {
             !pendingVerification ? (
               <>
-                <Input 
-                  placeholder="Seu nome"
-                  value={name}
-                  onChangeText={setName}
-                  autoCapitalize="words"
+                <Controller 
+                  control={control}
+                  name="name"
+                  render={({ field: { value, onChange } }) => (
+                    <Input 
+                      placeholder="Seu nome"
+                      value={value}
+                      onChangeText={onChange}
+                      autoCapitalize="words"
+                      errorMessage={errors.name?.message}
+                    />
+                  )}
                 />
-    
-                <Input 
-                  placeholder="Email"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  value={email}
-                  onChangeText={setEmail}
+
+                <Controller 
+                  control={control}
+                  name="email"
+                  render={({ field: { value, onChange } }) => (
+                    <Input 
+                      placeholder="Email"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      value={value}
+                      onChangeText={onChange}
+                      errorMessage={errors.email?.message}
+                    />
+                  )}
                 />
-      
-                <Input 
-                  placeholder="Senha"
-                  secureTextEntry
-                  value={password}
-                  onChangeText={setPassword}
+
+                <Controller 
+                  control={control}
+                  name="password"
+                  render={({ field: { value, onChange } }) => (
+                    <Input 
+                      placeholder="Senha"
+                      secureTextEntry
+                      value={value}
+                      onChangeText={onChange}
+                      errorMessage={errors.password?.message}
+                    />
+                  )}
+                />
+
+                <Controller 
+                  control={control}
+                  name="confirmPassword"
+                  render={({ field: { value, onChange } }) => (
+                    <Input 
+                      placeholder="Confirme a senha"
+                      secureTextEntry
+                      value={value}
+                      onChangeText={onChange}
+                      errorMessage={errors.confirmPassword?.message}
+                    />
+                  )}
                 />
       
                 <Button
-                  title={isLoading ? <Loading /> : "Cadastrar"}
-                  onPress={handleSignup}
-                  disabled={!(name && email && password) || isLoading}
+                  title="Cadastrar"
+                  onPress={handleSubmit(handleSignup)}
+                  isLoading={isLoading}
                 />
               </>
             ) : (
@@ -156,8 +213,9 @@ export function Signup () {
                 />
 
                 <Button
-                  title={ isLoading ? <Loading /> : "Confirmar" }
+                  title="Confirmar"
                   onPress={onPressVerify}
+                  isLoading={isLoading}
                 />
               </>
             )
