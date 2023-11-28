@@ -1,8 +1,6 @@
-import { NativeBaseProvider, StatusBar, Text } from 'native-base';
-import { useFonts, Roboto_400Regular, Roboto_700Bold } from '@expo-google-fonts/roboto';
+import { Roboto_400Regular, Roboto_700Bold, useFonts } from '@expo-google-fonts/roboto';
+import { NativeBaseProvider, StatusBar } from 'native-base';
 import { Loading } from './src/components/Loading';
-import { ClerkProvider } from "@clerk/clerk-expo";
-import Constants from "expo-constants"
 import { Routes } from './src/routes';
 
 
