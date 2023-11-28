@@ -215,7 +215,7 @@ export function Settings () {
             </HStack>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleGoToChangePassword}>
+          <TouchableOpacity>
             <HStack
               alignItems="center"
               justifyContent="flex-start"
