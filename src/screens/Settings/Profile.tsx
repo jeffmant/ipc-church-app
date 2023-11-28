@@ -98,20 +98,20 @@ export function Profile () {
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} _contentContainerStyle={{ paddingBottom: 10 }}>
-      <VStack px={10} mt={16}>
-        <TouchableOpacity onPress={handleGoToSettings}>
+        <TouchableOpacity onPress={handleGoToSettings} style={{ marginTop: 64, paddingHorizontal: 10 }}>
           <HStack>
             <ChevronLeftIcon color="gray.100" />
             <Heading
               fontFamily="heading"
               fontSize="md"
               color="gray.100"
-              ml={2}
+              ml={1}
             >
               Voltar
             </Heading>
           </HStack>
         </TouchableOpacity>
+      <VStack px={10} >
         <Center>
           {
             avatarIsLoading ? (
