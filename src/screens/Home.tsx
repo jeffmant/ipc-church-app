@@ -1,38 +1,56 @@
-import { ScrollView, VStack } from "native-base";
-import { Activity } from "../components/Activity";
+import { useUser } from "@clerk/clerk-expo";
+import { MaterialIcons } from '@expo/vector-icons';
+import { Avatar, HStack, Heading, Icon, ScrollView, VStack } from "native-base";
+import { TouchableOpacity } from "react-native";
+import { Post } from "../components/Post";
 
-import cellImage from '../assets/cell.jpg';
-import eventImage from '../assets/event.jpg';
-import ministryImage from '../assets/ministry.jpg';
-import serviceImage from '../assets/service.jpg';
 
 export function Home () {
+  const { user } = useUser()
+
   return (
-    <ScrollView showsVerticalScrollIndicator={true}>
-      <VStack px={8} py={16} mt={8}>
-          <Activity 
-            title="Cultos"
-            subtitle="Você sabe os horários dos nossos cultos?"
-            image={serviceImage}
-          />
-          
-          <Activity 
-            title="Células"
-            subtitle="Encontre uma célula próximo a você"
-            image={cellImage}
-          />
+    <ScrollView showsVerticalScrollIndicator={true} _contentContainerStyle={{ paddingBottom: 10 }}>
+      <VStack px={4} mt={8}>
+        <TouchableOpacity>
+          <HStack
+            justifyContent="space-around"
+            alignItems="center"
+            h={16}
+            bg="gray.500"
+            px={4}
+            my={6}
+            fontSize="md"
+            color="white"
+            rounded="full"
+          >
+            <Avatar 
+              source={{
+                uri: user?.imageUrl
+              }}
+              size={"md"}
+            />
+            <Heading
+              fontFamily="heading"
+              fontSize="md"
+              color="gray.100"
+            >
+              Deixe um testemunho
+            </Heading>
+            <Icon as={MaterialIcons} name="border-color" color="gray.100" />
+          </HStack>
+        </TouchableOpacity>
 
-          <Activity 
-            title="Ministérios"
-            subtitle="Conheça os ministérios da IPC"
-            image={ministryImage}
-          />
+        <Post
+          description={`Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis molestias dolore error in? Laboriosam animi ad molestias delectus, itaque vero voluptatibus molestiae libero modi, nemo ea. Perspiciatis accusantium accusamus eos!`}
+        />
 
-          <Activity 
-            title="Eventos"
-            subtitle="Fique por dentro da nossa programação"
-            image={eventImage}
-          />
+        <Post
+          description={`Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis molestias dolore error in? Laboriosam animi ad molestias delectus, itaque vero voluptatibus molestiae libero modi, nemo ea. Perspiciatis accusantium accusamus eos!`}
+        />
+
+        <Post
+          description={`Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis molestias dolore error in? Laboriosam animi ad molestias delectus, itaque vero voluptatibus molestiae libero modi, nemo ea. Perspiciatis accusantium accusamus eos!`}
+        />
       </VStack>
     </ScrollView>
   )

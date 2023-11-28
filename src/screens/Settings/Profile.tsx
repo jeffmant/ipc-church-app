@@ -1,22 +1,24 @@
-import { useClerk, useUser } from "@clerk/clerk-expo";
+import { useUser } from "@clerk/clerk-expo";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import * as ImagePicker from 'expo-image-picker';
 
-import { Avatar, Center, Link, ScrollView, Skeleton, Text, VStack, useToast } from "native-base";
+import { Avatar, Center, ChevronLeftIcon, HStack, Heading, Link, ScrollView, Skeleton, Text, VStack, useToast } from "native-base";
 import { useState } from "react";
 import { Controller, Resolver, useForm } from "react-hook-form";
 import { TouchableOpacity } from "react-native";
-import { Button } from "../components/Button";
-import { Input } from "../components/Input";
+import { Button } from "../../components/Button";
+import { Input } from "../../components/Input";
 
-import { ProfileDTO } from "../dtos/profile.dto";
-import { profileValidationSchema } from "../utils/validations/profile.schema";
+import { useNavigation } from "@react-navigation/native";
+import { ProfileDTO } from "../../dtos/profile.dto";
+import { AppRoutesNavigatorProps } from "../../routes/app.routes";
+import { profileValidationSchema } from "../../utils/validations/profile.schema";
 
 export function Profile () {
   const { user } = useUser()
-  const { signOut } = useClerk();
-
+  const { navigate } = useNavigation<AppRoutesNavigatorProps>()
+ 
   const { control, handleSubmit, setError, formState: { errors } } = useForm<ProfileDTO>({
     defaultValues: {
       name: user?.fullName || '',
@@ -30,10 +32,6 @@ export function Profile () {
   const [isLoading, setIsLoading] = useState(false)
 
   const [avatarIsLoading, setAvatarIsLoading] = useState(false)
-
-  async function handleLogout () {
-    await signOut()
-  }
 
   async function uploadImage () {
     setAvatarIsLoading(true)
@@ -78,13 +76,6 @@ export function Profile () {
         })
       }
 
-      if (data.oldPassword && data.password) {
-        await user?.updatePassword({
-          currentPassword: data.oldPassword,
-          newPassword: data.password
-        })
-      }
-
       toast.show({
         title: 'Perfil atualizado!',
         placement: 'top',
@@ -101,10 +92,27 @@ export function Profile () {
     }
   }
 
+  function handleGoToSettings () {
+    navigate('settings')
+  }
+
   return (
     <ScrollView showsVerticalScrollIndicator={false} _contentContainerStyle={{ paddingBottom: 10 }}>
-      <VStack px={10}>
-        <Center mt={16}>
+      <VStack px={10} mt={16}>
+        <TouchableOpacity onPress={handleGoToSettings}>
+          <HStack>
+            <ChevronLeftIcon color="gray.100" />
+            <Heading
+              fontFamily="heading"
+              fontSize="md"
+              color="gray.100"
+              ml={2}
+            >
+              Voltar
+            </Heading>
+          </HStack>
+        </TouchableOpacity>
+        <Center>
           {
             avatarIsLoading ? (
               <>
@@ -170,72 +178,12 @@ export function Profile () {
           />
         </Center>
 
-        <Center mt={4}>
-          <Text
-            color="gray.100"
-            fontFamily="body"
-            fontSize="md"
-            alignSelf="flex-start"
-            mb={4}
-          >
-            Alterar senha
-          </Text>
-
-          <Controller 
-            control={control}
-            name="oldPassword"
-            render={({ field: { value, onChange } }) => (
-              <Input 
-              placeholder="Senha antiga"
-              secureTextEntry
-                value={value}
-                onChangeText={onChange}
-                errorMessage={errors?.oldPassword?.message}
-              />
-            )}
-          />
-
-          <Controller 
-            control={control}
-            name="password"
-            render={({ field: { value, onChange } }) => (
-              <Input 
-                placeholder="Nova senha"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-                errorMessage={errors?.password?.message}
-              />
-            )}
-          />
-
-          <Controller 
-            control={control}
-            name="confirmPassword"
-            render={({ field: { value, onChange } }) => (
-              <Input 
-                placeholder="Confirmar senha"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-                errorMessage={errors?.confirmPassword?.message}
-              />
-            )}
-          />
-
-        </Center>
-
+       
         <Button 
           mt={4} 
           title="Atualizar" 
           onPress={handleSubmit(handleUpdate)}
           isLoading={isLoading}
-        />
-        <Button 
-          mt={2} 
-          variant={"outline"} 
-          title={"Sair"}
-          onPress={handleLogout} 
         />
       </VStack>
     </ScrollView>

@@ -1,19 +1,23 @@
-import { 
-  createBottomTabNavigator, 
-  BottomTabNavigationProp 
+import {
+  BottomTabNavigationProp,
+  createBottomTabNavigator
 } from '@react-navigation/bottom-tabs'
-import { Home } from '../screens/Home'
-import { Bible } from '../screens/Bible'
-import { Profile } from '../screens/Profile'
 import { useTheme } from 'native-base'
 import { Platform } from 'react-native'
+import { Bible } from '../screens/Bible'
+import { Home } from '../screens/Home'
+import { Profile } from '../screens/Settings/Profile'
 
-import { House, HandsPraying, User } from 'phosphor-react-native';
+import { GearSix, HandsPraying, House } from 'phosphor-react-native'
+import { Password } from '../screens/Settings/Password'
+import { Settings } from '../screens/Settings/Settings'
 
 type AppRoutesProps = {
   home: undefined
   bible: undefined
   profile: undefined
+  settings: undefined
+  changePassword: undefined
 }
 
 export type AppRoutesNavigatorProps = BottomTabNavigationProp<AppRoutesProps>
@@ -67,15 +71,31 @@ export function AppRoutes () {
       />
 
       <Screen 
-        name='profile'
-        component={Profile}
+        name='settings'
+        component={Settings}
         options={{
           tabBarIcon: ({ color }) => (
-            <User 
+            <GearSix
               color={color}
               size={iconSize}
             />
           )
+        }}
+      />
+
+      <Screen 
+        name='profile'
+        component={Profile}
+        options={{
+          tabBarButton: () => null
+        }}
+      />
+
+      <Screen 
+        name='changePassword'
+        component={Password}
+        options={{
+          tabBarButton: () => null
         }}
       />
     </Navigator>
