@@ -1,10 +1,9 @@
 import { useUser } from "@clerk/clerk-expo";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigation } from "@react-navigation/native";
-import { Box, Center, ChevronLeftIcon, HStack, Heading, VStack, useToast } from "native-base";
+import { Center, VStack, useToast } from "native-base";
 import { useState } from "react";
 import { Controller, Resolver, useForm } from "react-hook-form";
-import { TouchableOpacity } from "react-native";
 import { Button } from "../../components/Button";
 import { Header } from "../../components/Header";
 import { Input } from "../../components/Input";
@@ -50,7 +49,7 @@ export function Password () {
 
   return (
     <VStack flex={1}>
-      <Header title="Trocar Senha" />
+      <Header title="Trocar Senha" handleGoBack={handleGoToSettings} />
       <Center mt={4} p={10}>
         <Controller 
           control={control}
@@ -100,22 +99,6 @@ export function Password () {
           onPress={handleSubmit(handleUpdatePassword)}
           isLoading={isLoading}
         />
-
-        <Box mt={16}>
-          <TouchableOpacity onPress={handleGoToSettings}>
-            <HStack justifyContent="center" alignItems="center" ml={1}>
-              <ChevronLeftIcon color="gray.100" />
-              <Heading
-                fontFamily="heading"
-                fontSize="md"
-                color="gray.100"
-                ml={1}
-              >
-                Voltar
-              </Heading>
-            </HStack>
-          </TouchableOpacity>
-        </Box>
       </Center>
 
     </VStack>
